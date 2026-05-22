@@ -21,6 +21,7 @@ import {
   ExternalLink,
   Terminal,
   Send,
+  Loader2,
   CheckCircle2,
   Sparkles,
   MessageSquare,
@@ -92,6 +93,8 @@ export default function App() {
   const [formData, setFormData] = useState({ name: '', company: '', email: '', message: '' });
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formError, setFormError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [honeypot, setHoneypot] = useState('');
 
   // Initial load: fetch saved messages from localStorage or initialize with defaults
   useEffect(() => {
@@ -327,8 +330,17 @@ export default function App() {
   };
 
   // Contact Guestbook submit
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (honeypot.trim()) {
+      setFormError('');
+      setFormData({ name: '', company: '', email: '', message: '' });
+      setHoneypot('');
+      setFormSubmitted(true);
+      setTimeout(() => setFormSubmitted(false), 8000);
+      return;
+    }
+    if (isSubmitting) return;
     const { name, company, email, message } = formData;
 
     if (!name.trim() || !company.trim() || !email.trim() || !message.trim()) {
@@ -342,22 +354,36 @@ export default function App() {
     }
 
     setFormError('');
-    const newMessage: Message = {
-      id: `msg-${Date.now()}`,
-      name: name.trim(),
-      company: company.trim(),
-      email: email.trim(),
-      text: message.trim(),
-      date: new Date().toISOString().slice(0, 16).replace('T', ' ')
-    };
+    setIsSubmitting(true);
 
-    const updated = [newMessage, ...messages];
-    setMessages(updated);
-    localStorage.setItem('recruiters_messages_v1', JSON.stringify(updated));
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          company: company.trim(),
+          email: email.trim(),
+          message: message.trim()
+        })
+      });
 
-    setFormData({ name: '', company: '', email: '', message: '' });
-    setFormSubmitted(true);
-    setTimeout(() => setFormSubmitted(false), 8000);
+      const data = (await response.json().catch(() => null)) as null | { error?: string };
+
+      if (!response.ok) {
+        setFormError(data?.error || 'No se pudo enviar el mensaje. Inténtalo de nuevo.');
+        return;
+      }
+
+      setFormData({ name: '', company: '', email: '', message: '' });
+      setHoneypot('');
+      setFormSubmitted(true);
+      setTimeout(() => setFormSubmitted(false), 8000);
+    } catch {
+      setFormError('No se pudo enviar el mensaje. Revisa tu conexión e inténtalo de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const deleteMessage = (id: string) => {
@@ -1081,6 +1107,18 @@ export default function App() {
               )}
 
               <form onSubmit={handleContactSubmit} className="space-y-4">
+                <div className="absolute -left-[9999px] top-0 h-0 w-0 overflow-hidden opacity-0" aria-hidden="true">
+                  <label className="sr-only" htmlFor="website">Website</label>
+                  <input
+                    id="website"
+                    name="website"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                  />
+                </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   
@@ -1136,10 +1174,21 @@ export default function App() {
 
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold text-xs tracking-widest uppercase rounded-lg flex items-center justify-center space-x-2 transition-all duration-200"
+                  disabled={isSubmitting}
+                  aria-busy={isSubmitting}
+                  className="w-full py-3 px-4 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold text-xs tracking-widest uppercase rounded-lg flex items-center justify-center space-x-2 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  <Send className="w-4 h-4" />
-                  <span>Emitir Mensaje Auditor</span>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Enviando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>Emitir Mensaje Auditor</span>
+                    </>
+                  )}
                 </button>
 
               </form>
