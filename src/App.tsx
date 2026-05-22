@@ -342,13 +342,17 @@ export default function App() {
     }
     if (isSubmitting) return;
     const { name, company, email, message } = formData;
+    const trimmedName = name.trim();
+    const trimmedCompany = company.trim();
+    const trimmedEmail = email.trim();
+    const trimmedMessage = message.trim();
 
-    if (!name.trim() || !company.trim() || !email.trim() || !message.trim()) {
+    if (!trimmedName || !trimmedCompany || !trimmedEmail || !trimmedMessage) {
       setFormError('Por favor, rellene todos los campos requeridos.');
       return;
     }
 
-    if (!email.includes('@')) {
+    if (!trimmedEmail.includes('@')) {
       setFormError('Por favor introduce un correo electrónico válido.');
       return;
     }
@@ -361,10 +365,10 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: name.trim(),
-          company: company.trim(),
-          email: email.trim(),
-          message: message.trim()
+          name: trimmedName,
+          company: trimmedCompany,
+          email: trimmedEmail,
+          message: trimmedMessage
         })
       });
 
@@ -374,6 +378,19 @@ export default function App() {
         setFormError(data?.error || 'No se pudo enviar el mensaje. Inténtalo de nuevo.');
         return;
       }
+
+      const newMessage: Message = {
+        id: `msg-${Date.now()}`,
+        name: trimmedName,
+        company: trimmedCompany,
+        email: trimmedEmail,
+        text: trimmedMessage,
+        date: new Date().toISOString().slice(0, 16).replace('T', ' ')
+      };
+
+      const updated = [newMessage, ...messages];
+      setMessages(updated);
+      localStorage.setItem('recruiters_messages_v1', JSON.stringify(updated));
 
       setFormData({ name: '', company: '', email: '', message: '' });
       setHoneypot('');
