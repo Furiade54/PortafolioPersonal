@@ -1,0 +1,6 @@
+{
+  "name": "Portfolio Desarrollador Full Stack Junior",
+  "description": "Landing page de presentación personal y portfolio profesional moderno para un desarrollador de software Full Stack Junior.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
