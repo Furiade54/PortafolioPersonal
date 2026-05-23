@@ -1287,19 +1287,22 @@ export default function App() {
                             {(() => {
                               const qrCodigoUrl = (simulationResponse as { qrCodigoUrl?: unknown }).qrCodigoUrl;
                               const codigo64 = (simulationResponse as { codigo64?: unknown }).codigo64;
+                              const link = (simulationResponse as { link?: unknown }).link;
 
                               const src =
                                 typeof qrCodigoUrl === 'string' && qrCodigoUrl.startsWith('data:image/')
                                   ? qrCodigoUrl
                                   : typeof codigo64 === 'string' && codigo64.length > 0
                                   ? `data:image/png;base64,${codigo64}`
+                                  : typeof link === 'string' && /^https?:\/\//.test(link)
+                                  ? link
                                   : null;
 
                               if (!src) return null;
 
                               return (
                                 <div className="pb-3">
-                                  <span className="text-slate-500 block pb-1">// QR Preview:</span>
+                                  <span className="text-slate-500 block pb-1">// PNG Preview:</span>
                                   <div className="inline-flex items-center gap-2 bg-slate-900/60 p-2 rounded border border-slate-850/80">
                                     <img
                                       src={src}
