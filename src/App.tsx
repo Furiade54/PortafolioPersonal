@@ -1284,6 +1284,32 @@ export default function App() {
                         {/* Real returned parameters container */}
                         {isActiveSimulating && simulationResponse && (
                           <div className="pt-3 border-t border-slate-800 text-[10px] text-emerald-400 font-mono">
+                            {(() => {
+                              const qrCodigoUrl = (simulationResponse as { qrCodigoUrl?: unknown }).qrCodigoUrl;
+                              const codigo64 = (simulationResponse as { codigo64?: unknown }).codigo64;
+
+                              const src =
+                                typeof qrCodigoUrl === 'string' && qrCodigoUrl.startsWith('data:image/')
+                                  ? qrCodigoUrl
+                                  : typeof codigo64 === 'string' && codigo64.length > 0
+                                  ? `data:image/png;base64,${codigo64}`
+                                  : null;
+
+                              if (!src) return null;
+
+                              return (
+                                <div className="pb-3">
+                                  <span className="text-slate-500 block pb-1">// QR Preview:</span>
+                                  <div className="inline-flex items-center gap-2 bg-slate-900/60 p-2 rounded border border-slate-850/80">
+                                    <img
+                                      src={src}
+                                      alt="QR generado"
+                                      className="w-20 h-20 rounded bg-white"
+                                    />
+                                  </div>
+                                </div>
+                              );
+                            })()}
                             <span className="text-slate-500 block pb-1">// JSON Response returned:</span>
                             <pre className="bg-slate-900/60 p-2 rounded border border-slate-850/80 overflow-x-auto">
                               {JSON.stringify(simulationResponse, null, 2)}
