@@ -87,6 +87,7 @@ export default function App() {
   const [simulationResponse, setSimulationResponse] = useState<Record<string, unknown> | null>(null);
   const [simulationOutputLogs, setSimulationOutputLogs] = useState<string[]>([]);
   const [simulationLoading, setSimulationLoading] = useState(false);
+  const simulationRunIdRef = useRef(0);
 
   // Recruiter guestbook/contact state
   const [messages, setMessages] = useState<Message[]>([]);
@@ -308,16 +309,233 @@ export default function App() {
   const triggerApiSimulation = (project: Project) => {
     if (activeSimulatingProject === project.id && simulationLoading) return;
 
+    const runId = Date.now();
+    simulationRunIdRef.current = runId;
+
+    const method = project.apiMockMethod ?? 'GET';
+    const endpoint = project.apiMockEndpoint ?? '/api/mock';
+
     setActiveSimulatingProject(project.id);
     setSimulationLoading(true);
     setSimulationResponse(null);
-    setSimulationOutputLogs([
-      `[REQ] GET ${project.apiMockEndpoint}`,
-      `[HDR] Accept-Language: es-ES`,
-      `[HDR] Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
-    ]);
+    setSimulationOutputLogs(() => {
+      if (project.id === 'softpack-launcher') {
+        return [
+          `[REQ] ${method} ${endpoint}`,
+          `[HDR] Content-Type: application/json`,
+          `[HDR] X-Client: SoftpackLauncher`,
+          `[HDR] X-Platform: win32`
+        ];
+      }
+      if (project.id === 'securepass-vault') {
+        return [
+          `[REQ] ${method} ${endpoint}`,
+          `[HDR] Content-Type: application/json`,
+          `[HDR] X-Vault: SecurePass`,
+          `[HDR] X-Storage: localStorage`
+        ];
+      }
 
-    setTimeout(() => {
+      return [
+        `[REQ] ${method} ${endpoint}`,
+        `[HDR] Accept-Language: es-ES`,
+        `[HDR] Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+      ];
+    });
+
+    const appendLogs = (delayMs: number, lines: string[]) => {
+      window.setTimeout(() => {
+        if (simulationRunIdRef.current !== runId) return;
+        setSimulationOutputLogs(prev => [...prev, ...lines]);
+      }, delayMs);
+    };
+
+    const appendNow = (lines: string[]) => {
+      if (simulationRunIdRef.current !== runId) return;
+      setSimulationOutputLogs(prev => [...prev, ...lines]);
+    };
+
+    if (project.id === 'softpack-launcher') {
+      appendLogs(450, [
+        `[OK]  IPC seguro: preload + contextBridge OK`,
+        `[OK]  Validación de catálogo: OK`
+      ]);
+      appendLogs(900, [
+        `[CMD] winget install --id ${String((project.apiMockResponse as { packageId?: string } | undefined)?.packageId || 'Google.Chrome')} --silent --accept-source-agreements --accept-package-agreements`,
+        `[INFO] Resolviendo manifiesto y dependencias...`
+      ]);
+      appendLogs(1350, [
+        `[OK]  Descarga completada`,
+        `[OK]  Instalación en progreso...`
+      ]);
+      window.setTimeout(() => {
+        if (simulationRunIdRef.current !== runId) return;
+        setSimulationOutputLogs(prev => [
+          ...prev,
+          `[OK]  Instalación completada (exit 0)`
+        ]);
+        setSimulationLoading(false);
+        setSimulationResponse(
+          project.apiMockResponse || {
+            ok: true,
+            tool: "winget",
+            action: "install",
+            installed: true
+          }
+        );
+      }, 1750);
+      return;
+    }
+
+    if (project.id === 'securepass-vault') {
+      appendLogs(450, [
+        `[OK]  Validación de entrada: OK`,
+        `[CRYPTO] Preparando derivación de clave (PBKDF2)...`
+      ]);
+
+      window.setTimeout(() => {
+        void (async () => {
+          if (simulationRunIdRef.current !== runId) return;
+
+          const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (const b of bytes) binary += String.fromCharCode(b);
+            return btoa(binary);
+          };
+
+          const bytesToBase64 = (bytes: Uint8Array) => {
+            let binary = '';
+            for (const b of bytes) binary += String.fromCharCode(b);
+            return btoa(binary);
+          };
+
+          const storageKey = 'securepass_vault_mock_v1';
+          const entryId = `entry_${Date.now()}`;
+          const site = 'github.com';
+          const username = 'andres.sanchez';
+          const passwordPlain = 'S3cureP@ssw0rd!';
+          const createdAt = new Date().toISOString();
+
+          try {
+            if (!window.crypto?.subtle) {
+              appendNow([
+                `[WARN] WebCrypto no disponible; usando codificación base64 como fallback`,
+                `[STORE] Guardando en localStorage: ${storageKey}`
+              ]);
+
+              const fallbackPayload = {
+                version: 1,
+                entryId,
+                createdAt,
+                meta: { site, username },
+                crypto: { algorithm: 'BASE64_FALLBACK' },
+                data: btoa(passwordPlain)
+              };
+
+              localStorage.setItem(storageKey, JSON.stringify(fallbackPayload));
+              appendNow([`[OK]  Entrada almacenada (mock)`]);
+              setSimulationLoading(false);
+              setSimulationResponse({
+                ok: true,
+                stored: true,
+                storage: 'localStorage',
+                storageKey,
+                entryId,
+                meta: { site, username },
+                crypto: fallbackPayload.crypto
+              });
+              return;
+            }
+
+            const encoder = new TextEncoder();
+            const salt = window.crypto.getRandomValues(new Uint8Array(16));
+            const iv = window.crypto.getRandomValues(new Uint8Array(12));
+            const iterations = 100000;
+
+            appendNow([
+              `[CRYPTO] Salt generado: ${bytesToBase64(salt).slice(0, 12)}...`,
+              `[CRYPTO] IV generado: ${bytesToBase64(iv).slice(0, 12)}...`
+            ]);
+
+            const keyMaterial = await window.crypto.subtle.importKey(
+              'raw',
+              encoder.encode('securepass-demo-master'),
+              'PBKDF2',
+              false,
+              ['deriveKey']
+            );
+
+            const aesKey = await window.crypto.subtle.deriveKey(
+              { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
+              keyMaterial,
+              { name: 'AES-GCM', length: 256 },
+              false,
+              ['encrypt', 'decrypt']
+            );
+
+            appendNow([`[OK]  Clave derivada: PBKDF2 (${iterations} iteraciones)`]);
+
+            const cipherBuffer = await window.crypto.subtle.encrypt(
+              { name: 'AES-GCM', iv },
+              aesKey,
+              encoder.encode(passwordPlain)
+            );
+
+            const payload = {
+              version: 1,
+              entryId,
+              createdAt,
+              meta: { site, username },
+              kdf: {
+                name: 'PBKDF2',
+                hash: 'SHA-256',
+                iterations,
+                salt: bytesToBase64(salt)
+              },
+              cipher: {
+                name: 'AES-GCM',
+                iv: bytesToBase64(iv),
+                tagLength: 128
+              },
+              data: arrayBufferToBase64(cipherBuffer)
+            };
+
+            appendNow([
+              `[OK]  Contraseña encriptada (AES-256-GCM)`,
+              `[STORE] Guardando en localStorage: ${storageKey}`
+            ]);
+
+            localStorage.setItem(storageKey, JSON.stringify(payload));
+
+            appendNow([`[OK]  Entrada almacenada (mock)`]);
+            setSimulationLoading(false);
+            setSimulationResponse({
+              ok: true,
+              stored: true,
+              storage: 'localStorage',
+              storageKey,
+              entryId,
+              meta: { site, username },
+              crypto: {
+                algorithm: 'AES-256-GCM',
+                kdf: 'PBKDF2',
+                iterations
+              }
+            });
+          } catch {
+            appendNow([`[ERR] No se pudo cifrar/almacenar la entrada`]);
+            setSimulationLoading(false);
+            setSimulationResponse({ ok: false, error: 'securepass_mock_failed' });
+          }
+        })();
+      }, 1200);
+
+      return;
+    }
+
+    window.setTimeout(() => {
+      if (simulationRunIdRef.current !== runId) return;
       setSimulationOutputLogs(prev => [
         ...prev,
         `[OK]  Middleware de seguridad: OK (200)`,
@@ -1011,8 +1229,8 @@ export default function App() {
                         
                         <div className="p-3 bg-slate-950/85 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs font-mono">
                           <div className="flex items-center space-x-2 text-slate-300 overflow-hidden">
-                            <span className="text-emerald-400 font-bold">GET</span>
-                            <span className="truncate text-slate-400">{proj.apiMockEndpoint}</span>
+                            <span className="text-emerald-400 font-bold">{proj.apiMockMethod || 'GET'}</span>
+                            <span className="truncate text-slate-400">{proj.apiMockEndpoint || '/api/mock'}</span>
                           </div>
                           
                           <button
@@ -1021,7 +1239,11 @@ export default function App() {
                             className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-[10px] font-bold flex items-center space-x-1 font-mono active:scale-95 transition-all outline-none"
                           >
                             <Play className="w-3 h-3 fill-current text-slate-950" />
-                            <span>{isActiveSimulating && simulationLoading ? 'Enviando...' : 'Enviar GET'}</span>
+                            <span>
+                              {isActiveSimulating && simulationLoading
+                                ? 'Enviando...'
+                                : `Enviar ${proj.apiMockMethod || 'GET'}`}
+                            </span>
                           </button>
                         </div>
                       </div>
@@ -1055,7 +1277,7 @@ export default function App() {
                               )}
                             </>
                           ) : (
-                            <p className="text-slate-500 italic text-center pt-8">Presiona 'Enviar GET' para simular e inspeccionar flujo JSON de respuesta.</p>
+                            <p className="text-slate-500 italic text-center pt-8">Presiona 'Enviar' para simular e inspeccionar el flujo JSON de respuesta.</p>
                           )}
                         </div>
 

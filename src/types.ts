@@ -21,6 +21,7 @@ export interface Project {
   githubUrl?: string;
   liveUrl?: string;
   features: string[];
+  apiMockMethod?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   apiMockEndpoint?: string;
   apiMockResponse?: Record<string, unknown>;
 }
