@@ -6,6 +6,9 @@ import {defineConfig} from 'vite';
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
+    define: {
+      __CONTACT_TO_EMAIL__: JSON.stringify(process.env.CONTACT_TO_EMAIL ?? ''),
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

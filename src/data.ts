@@ -4,7 +4,7 @@ export const developerProfile: DeveloperProfile = {
   name: "Andrés Sánchez",
   title: "Full Stack Developer Junior",
   location: "Medellín, Colombia (Híbrido / Remoto)",
-  email: "mateosilva.dev@gmail.com",
+  email: "andres.xa@gmail.com",
   github: "https://github.com",
   linkedin: "https://linkedin.com",
   twitter: "https://twitter.com",

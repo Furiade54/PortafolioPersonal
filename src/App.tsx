@@ -1421,7 +1421,7 @@ export default function App() {
               <div className="space-y-4 mb-6">
                 <h4 className="text-lg font-bold text-white">Enviar Mensaje Seguro</h4>
                 <p className="text-slate-300 text-xs sm:text-sm">
-                  ¿Tienes vacantes disponibles o quieres agendar una videollamada para conversar sobre cómo Andrés puede aportar en tu equipo? Rellena el formulario de abajo. Al enviar, tu mensaje se guardará en tu localStorage local y aparecerá en el feed de visitas como un caso de test completo.
+                  ¿Tienes vacantes disponibles o quieres agendar una videollamada para conversar sobre cómo Andrés puede aportar en tu equipo? Rellena el formulario de abajo. Al enviar, tu mensaje se enviará al correo electrónico por medio.
                 </p>
               </div>
 
