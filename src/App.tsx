@@ -534,6 +534,96 @@ export default function App() {
       return;
     }
 
+    if (project.id === 'qr-generator-api') {
+      appendLogs(450, [
+        `[OK]  Validación de parámetros: OK`,
+        `[INFO] Generando PNG (mock) en memoria...`
+      ]);
+
+      window.setTimeout(() => {
+        if (simulationRunIdRef.current !== runId) return;
+
+        const query = endpoint.split('?')[1] || '';
+        const params = new URLSearchParams(query);
+        const texto = params.get('texto') ? decodeURIComponent(params.get('texto') as string) : 'hola mundo';
+        const widthParam = Number(params.get('width') || '250');
+        const width = Number.isFinite(widthParam) && widthParam > 0 ? widthParam : 250;
+
+        const size = 128;
+        const cells = 21;
+        const cell = Math.floor(size / cells);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = cells * cell;
+        canvas.height = cells * cell;
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          appendNow([`[ERR] No se pudo inicializar Canvas 2D`]);
+          setSimulationLoading(false);
+          setSimulationResponse({ ok: false, error: 'qr_mock_canvas_failed' });
+          return;
+        }
+
+        const hash = (() => {
+          let h = 5381;
+          for (let i = 0; i < texto.length; i++) h = (h * 33) ^ texto.charCodeAt(i);
+          return h >>> 0;
+        })();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const drawFinder = (x: number, y: number) => {
+          ctx.fillStyle = '#000000';
+          ctx.fillRect(x * cell, y * cell, 7 * cell, 7 * cell);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect((x + 1) * cell, (y + 1) * cell, 5 * cell, 5 * cell);
+          ctx.fillStyle = '#000000';
+          ctx.fillRect((x + 2) * cell, (y + 2) * cell, 3 * cell, 3 * cell);
+        };
+
+        drawFinder(0, 0);
+        drawFinder(cells - 7, 0);
+        drawFinder(0, cells - 7);
+
+        for (let y = 0; y < cells; y++) {
+          for (let x = 0; x < cells; x++) {
+            const inFinder =
+              (x < 7 && y < 7) ||
+              (x >= cells - 7 && y < 7) ||
+              (x < 7 && y >= cells - 7);
+            if (inFinder) continue;
+
+            const v = (hash + x * 131 + y * 313) >>> 0;
+            const on = ((v >> ((x + y) % 16)) & 1) === 1;
+            if (!on) continue;
+
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(x * cell, y * cell, cell, cell);
+          }
+        }
+
+        const qrCodigoUrl = canvas.toDataURL('image/png');
+        const link = `https://qr-generator-api-1z0m.onrender.com/qr?texto=${encodeURIComponent(texto)}&width=${encodeURIComponent(String(width))}`;
+
+        appendNow([
+          `[OK]  PNG generado: ${canvas.width}x${canvas.height}`,
+          `[OK]  Respuesta preparada con Data URL + link`
+        ]);
+        setSimulationLoading(false);
+        setSimulationResponse({
+          ok: true,
+          endpoint: "/generar",
+          params: { texto, width },
+          qrCodigoUrl,
+          link
+        });
+      }, 1350);
+
+      return;
+    }
+
     window.setTimeout(() => {
       if (simulationRunIdRef.current !== runId) return;
       setSimulationOutputLogs(prev => [
