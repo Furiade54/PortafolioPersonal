@@ -147,7 +147,16 @@ export default function App() {
 
     container.innerHTML = '';
 
-    const PARTICLE_COUNT = prefersReducedMotion ? 50 : 90;
+    const deviceMemory = (navigator as unknown as { deviceMemory?: number }).deviceMemory;
+    const hardwareConcurrency = navigator.hardwareConcurrency || 4;
+    const isLowEndDevice = (typeof deviceMemory === 'number' && deviceMemory <= 4) || hardwareConcurrency <= 4;
+    const isSmallViewport = window.innerWidth < 768 || window.innerHeight < 700;
+
+    let particleCount = prefersReducedMotion ? 24 : 60;
+    if (isSmallViewport) particleCount = Math.min(particleCount, prefersReducedMotion ? 18 : 44);
+    if (isLowEndDevice) particleCount = Math.min(particleCount, prefersReducedMotion ? 14 : 36);
+
+    const PARTICLE_COUNT = particleCount;
     const REPEL_RADIUS = 160;
     const REPEL_FORCE = 0.5;
     const RETURN_FORCE = 0.03;
