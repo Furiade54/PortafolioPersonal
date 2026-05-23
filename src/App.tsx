@@ -289,9 +289,9 @@ export default function App() {
       '[INFO] Running TypeScript strictly-typed checks...',
       '[OK]   TS Compile: Success (0 warnings / StrictMode: Active)',
       '[INFO] Bundler: Vite optimizing build variables...',
-      '[INFO] Checking PostgreSQL schema connections & seed states...',
-      '[OK]   DB pool: Warm and responsive (42ms query index check)',
-      '[INFO] Testing REST APIs status checks (FastAPI / Express)...',
+      '[INFO] Checking localStorage persistence & mock payloads...',
+      '[OK]   SecurePass crypto flow: AES-GCM + PBKDF2 OK',
+      '[INFO] Testing Node.js Express endpoints (contact / QR)...',
       '[DONE] All automated checks: PASSED'
     ];
 
@@ -812,12 +812,12 @@ export default function App() {
 
               {/* Short Bio */}
               <p className="text-slate-400 text-base sm:text-lg leading-relaxed max-w-2xl">
-                {developerProfile.shortSummary} Especializado en estructurar APIs en Node.js/Python, orquestar interfaces dinámicas con React y optimizar flujos con Docker.
+                {developerProfile.shortSummary} Especializado en diseñar APIs con Node.js/Express, construir interfaces modernas con React + TypeScript y crear utilidades de escritorio con Electron.
               </p>
 
               {/* Technologies Highlights tags */}
               <div className="flex flex-wrap gap-2 pt-2">
-                {['TypeScript', 'React.js', 'Node.js', 'PostgreSQL', 'Docker', 'FastAPI'].map((tech) => (
+                {['TypeScript', 'React', 'Node.js', 'Express', 'Electron', 'Vercel/Render'].map((tech) => (
                   <span
                     key={tech}
                     className="skill-badge"
@@ -921,8 +921,8 @@ export default function App() {
                       <p className="pl-4"><span className="text-purple-400">entorno</span>: <span className="text-amber-300">"Full Stack / Cloud-Ready"</span>,</p>
                       <p className="pl-4"><span className="text-purple-400">ubicacion</span>: <span className="text-amber-300">"Medellín, CO"</span>,</p>
                       <p className="pl-4"><span className="text-purple-400">habilidades_clave</span>: [</p>
-                      <p className="pl-8"><span className="text-emerald-400">"TypeScript"</span>, <span className="text-emerald-400">"Next.js"</span>, <span className="text-emerald-400">"PostgreSQL"</span>,</p>
-                      <p className="pl-8"><span className="text-emerald-400">"FastAPI"</span>, <span className="text-emerald-400">"Docker"</span>, <span className="text-emerald-400">"CI/CD"</span></p>
+                      <p className="pl-8"><span className="text-emerald-400">"TypeScript"</span>, <span className="text-emerald-400">"React"</span>, <span className="text-emerald-400">"Electron"</span>,</p>
+                      <p className="pl-8"><span className="text-emerald-400">"Node.js"</span>, <span className="text-emerald-400">"Express"</span>, <span className="text-emerald-400">"Vercel/Render"</span></p>
                       <p className="pl-4">],</p>
                       <p className="pl-4"><span className="text-purple-400">estado_contratacion</span>: <span className="text-emerald-400">"OPEN_TO_WORK"</span>,</p>
                       <p className="pl-4"><span className="text-purple-400">buscando_oportunidades</span>: <span className="text-indigo-400">true</span></p>

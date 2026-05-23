@@ -8,8 +8,8 @@ export const developerProfile: DeveloperProfile = {
   github: "https://github.com",
   linkedin: "https://linkedin.com",
   twitter: "https://twitter.com",
-  shortSummary: "Desarrollador Full Stack Junior entusiasta por las arquitecturas limpias, el rendimiento de base de datos y la creación de interfaces web fluidas y pixel-perfect.",
-  aboutMe: "Soy un desarrollador de software con una sólida base en principios de ingeniería. Me apasiona resolver problemas complejos traduciéndolos en código limpio y eficiente. Aunque actualmente me especializo en el ecosistema de JavaScript y TypeScript (React, Node.js, Express), también disfruto explorando backend con Python e infraestructura cloud mediante Docker y CI/CD. Mi enfoque se centra en crear aplicaciones estables que ofrezcan una excelente experiencia de usuario, buscando siempre aprender nuevas tecnologías y sumarme a equipos de alto rendimiento."
+  shortSummary: "Desarrollador Full Stack Junior enfocado en construir productos funcionales con UX cuidada, APIs claras y automatizaciones útiles para el usuario final.",
+  aboutMe: "Soy un desarrollador de software con una sólida base en principios de ingeniería. Me apasiona resolver problemas complejos traduciéndolos en código limpio y eficiente. Actualmente me muevo en el ecosistema de JavaScript y TypeScript (React + Vite, Node.js + Express) y he construido aplicaciones de escritorio con Electron.\nTambién me interesa la seguridad aplicada (cifrado, derivación de claves y almacenamiento local) y el despliegue de proyectos reales en plataformas como Vercel y Render."
 };
 
 export const skillCategories: SkillCategory[] = [
@@ -17,40 +17,39 @@ export const skillCategories: SkillCategory[] = [
     title: "Backend",
     color: "indigo",
     skills: [
-      { name: "Node.js & Express", level: "Avanzado", iconName: "Server", description: "Creación de APIs REST robustas, middlewares de autenticación y manejo de flujos asíncronos." },
-      { name: "Python & FastAPI", level: "Intermedio", iconName: "Cpu", description: "Construcción rápida de microservicios e integraciones con validación estricta usando Pydantic." },
-      { name: "APIs RESTful & GraphQL", level: "Avanzado", iconName: "CornerDownRight", description: "Diseño lógico de endpoints, serialización de datos y paginación eficiente." },
-      { name: "Arquitectura y Clean Code", level: "Intermedio", iconName: "GitBranch", description: "Mapeo de arquitectura en capas, principios SOLID y patrones de diseño creacionales." }
+      { name: "Node.js & Express", level: "Avanzado", iconName: "Server", description: "Diseño de APIs REST con validación de parámetros, manejo de errores y endpoints listos para consumo en frontend." },
+      { name: "APIs RESTful", level: "Avanzado", iconName: "CornerDownRight", description: "Contratos claros (request/response), serialización, manejo de status codes y ejemplos de integración." },
+      { name: "Servicios utilitarios (QR)", level: "Intermedio", iconName: "Cpu", description: "Microservicios para generación de assets (PNG) desde parámetros y consumo simple vía querystring." },
+      { name: "Arquitectura y Clean Code", level: "Intermedio", iconName: "GitBranch", description: "Separación por capas, responsabilidades claras y mantenimiento fácil en proyectos reales." }
     ]
   },
   {
     title: "Frontend",
     color: "cyan",
     skills: [
-      { name: "React (Vite/Next.js)", level: "Avanzado", iconName: "Layers", description: "Creación de Single Page Applications interactivas con manejo de estado avanzado (Context/Zustand)." },
+      { name: "React (Vite)", level: "Avanzado", iconName: "Layers", description: "Construcción de SPA rápidas, componentes reutilizables y flujos de UI interactivos." },
       { name: "TypeScript", level: "Avanzado", iconName: "Code2", description: "Uso riguroso de tipado estricto, interfaces complejas y genéricos para código seguro." },
       { name: "Tailwind CSS", level: "Avanzado", iconName: "Palette", description: "Maquetación ágil, responsiva y altamente personalizada usando sistemas de diseño basados en utilidades." },
-      { name: "State Management", level: "Intermedio", iconName: "Network", description: "Manejo eficiente de flujos de datos globales, optimización y caching de consultas remotas." }
+      { name: "Electron (Desktop)", level: "Intermedio", iconName: "Cpu", description: "Aplicaciones de escritorio con IPC seguro (preload + contextBridge), instaladores y flujos orientados a Windows." }
     ]
   },
   {
     title: "Bases de Datos",
     color: "emerald",
     skills: [
-      { name: "PostgreSQL", level: "Avanzado", iconName: "Database", description: "Diseño de esquemas relacionales trascendentes, optimización de índices, transacciones y consultas SQL complejas." },
-      { name: "MongoDB", level: "Intermedio", iconName: "FolderOpen", description: "Modelado de datos no relacionales, agregaciones avanzadas y colecciones dinámicas." },
-      { name: "Redis", level: "Iniciando", iconName: "Zap", description: "Estrategias básicas de almacenamiento en caché para acelerar tiempos de respuesta de APIs." },
-      { name: "Firestore / Firebase", level: "Intermedio", iconName: "Flame", description: "Implementación ágil de bases de datos en tiempo real y reglas de seguridad granulares." }
+      { name: "localStorage (Persistencia Cliente)", level: "Avanzado", iconName: "Database", description: "Persistencia de estado/objetos en navegador y estrategias para lectura/escritura segura y consistente." },
+      { name: "Backups & Export/Import", level: "Intermedio", iconName: "FolderOpen", description: "Exportación e importación de datos (incluyendo backups encriptados) con control de versión del payload." },
+      { name: "Cifrado en reposo", level: "Intermedio", iconName: "Zap", description: "Protección de datos antes de persistirlos (AES-GCM) y derivación de claves (PBKDF2) a nivel cliente." }
     ]
   },
   {
     title: "Cloud / DevOps",
     color: "purple",
     skills: [
-      { name: "Docker", level: "Intermedio", iconName: "Container", description: "Contenerización de entornos de desarrollo y empaquetado para despliegues consistentes en producción." },
-      { name: "Git & GitHub Actions", level: "Avanzado", iconName: "Github", description: "Estrategias de ramificación limpia (GitFlow) y automatización de pipelines CI/CD básicos." },
-      { name: "AWS (S3 & EC2)", level: "Iniciando", iconName: "Cloud", description: "Configuración de almacenamiento estático y despliegue simple de servidores virtuales linux." },
-      { name: "Metodologías Ágiles", level: "Intermedio", iconName: "ClipboardList", description: "Colaboración eficaz usando Scrum, tableros Kanban e hitos iterativos de entrega." }
+      { name: "Git & GitHub", level: "Avanzado", iconName: "Github", description: "Trabajo por ramas, merge limpio, snapshots (tags) y repositorios listos para revisión." },
+      { name: "Deploy en Vercel", level: "Intermedio", iconName: "Cloud", description: "Publicación de aplicaciones web (SPA/PWA) con URL accesible y despliegue continuo." },
+      { name: "Deploy en Render", level: "Intermedio", iconName: "Cloud", description: "Despliegue de servicios Node.js (Express) para exponer endpoints públicos y demos consumibles." },
+      { name: "Distribución (Releases)", level: "Intermedio", iconName: "ClipboardList", description: "Publicación de builds y entregables (releases) para descargar/probar proyectos." }
     ]
   }
 ];
