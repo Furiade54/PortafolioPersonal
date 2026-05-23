@@ -69,6 +69,8 @@ interface Message {
   date: string;
 }
 
+declare const __CONTACT_TO_EMAIL__: string;
+
 export default function App() {
   // Navigation active state highlight on scroll
   const [activeSection, setActiveSection] = useState('hero');
@@ -96,6 +98,8 @@ export default function App() {
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [honeypot, setHoneypot] = useState('');
+
+  const contactEmail = __CONTACT_TO_EMAIL__ || developerProfile.email;
 
   // Initial load: fetch saved messages from localStorage or initialize with defaults
   useEffect(() => {
@@ -1013,7 +1017,7 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* Bio Box */}
-            <div className="lg:col-span-8 glass-card rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6">
+            <div className="lg:col-span-12 glass-card rounded-2xl p-6 sm:p-8 flex flex-col justify-between space-y-6">
               
               <div className="space-y-4">
                 <div className="flex items-center space-x-3 text-cyan-400 font-mono text-sm uppercase tracking-wider font-semibold">
@@ -1037,34 +1041,7 @@ export default function App() {
                 </div>
                 <div className="flex items-center space-x-3">
                   <Mail className="w-4 h-4 text-indigo-400 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm text-slate-300">{developerProfile.email}</span>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Stats Sidebar (Bento Box) */}
-            <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
-              
-              <div className="glass-card p-6 rounded-2xl border-t-2 border-indigo-500/30 flex flex-col justify-between">
-                <div>
-                  <Sparkles className="w-5 h-5 text-indigo-400 mb-2" />
-                  <span className="text-[11px] font-mono uppercase text-indigo-300 tracking-wider">Compromiso</span>
-                </div>
-                <div>
-                  <div className="text-3xl font-extrabold text-[#f8fafc] mt-4 font-mono">1,200+</div>
-                  <div className="text-xs text-slate-400 mt-1">Horas estimadas de código en el último año</div>
-                </div>
-              </div>
-
-              <div className="glass-card p-6 rounded-2xl border-t-2 border-cyan-500/30 flex flex-col justify-between">
-                <div>
-                  <CheckCircle className="w-5 h-5 text-cyan-400 mb-2" />
-                  <span className="text-[11px] font-mono uppercase text-cyan-300 tracking-wider">Hito de Código</span>
-                </div>
-                <div>
-                  <div className="text-3xl font-extrabold text-[#f8fafc] mt-4 font-mono">100%</div>
-                  <div className="text-xs text-slate-400 mt-1">TypeScript nativo para todo backend y frontend</div>
+                  <span className="text-xs sm:text-sm text-slate-300">{contactEmail}</span>
                 </div>
               </div>
 
