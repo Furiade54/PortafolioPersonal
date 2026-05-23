@@ -112,5 +112,31 @@ export const projects: Project[] = [
         kdf: "PBKDF2"
       }
     }
+  },
+  {
+    id: "qr-generator-api",
+    title: "QR Generator API",
+    description: "Microservicio en Node.js (Express) que genera códigos QR PNG desde texto por querystring.",
+    longDescription: "API REST en Node.js (Express) para generar códigos QR en PNG a partir de un parámetro `texto`.\nIncluye endpoints para devolver JSON con Data URL, PNG binario y base64 sin prefijo data:.\nPensado para integrarse rápido con frontends y automatizaciones.",
+    tags: ["Node.js", "Express", "REST", "QRCode", "JavaScript", "Render"],
+    category: "Backend",
+    githubUrl: "https://github.com/Furiade54/qr-generator-api",
+    liveUrl: "https://qr-generator-api-1z0m.onrender.com/",
+    features: [
+      "GET /generar: devuelve JSON con Data URL (data:image/png;base64,...) y link a /qr.",
+      "GET /qr: devuelve PNG binario (Content-Type image/png).",
+      "GET /qrtexto: devuelve JSON con base64 del PNG (sin prefijo data:).",
+      "Parámetros: texto (obligatorio) y width (opcional) validado.",
+      "Configurable por variables de entorno (PORT, QR_WIDTH, etc.)."
+    ],
+    apiMockMethod: "GET",
+    apiMockEndpoint: "/api/qr/generar?texto=hola%20mundo&width=250",
+    apiMockResponse: {
+      ok: true,
+      endpoint: "/generar",
+      params: { texto: "hola mundo", width: 250 },
+      qrCodigoUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+      link: "https://qr-generator-api-1z0m.onrender.com/qr?texto=hola%20mundo&width=250"
+    }
   }
 ];
