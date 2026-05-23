@@ -57,79 +57,48 @@ export const skillCategories: SkillCategory[] = [
 
 export const projects: Project[] = [
   {
-    id: "tasksphere",
-    title: "TaskSphere",
-    description: "Espacio de trabajo Kanban interactivo con foco en rendimiento extremo y guardado automático en local.",
-    longDescription: "Un gestor de tareas ágiles concebido para equipos pequeños que buscan velocidad y simplicidad. Los usuarios pueden crear múltiples tableros, columnas personalizables y tarjetas multimedia, todo respaldado por arrastrar y soltar fluido de tareas y persistencia automática sin latencia visible.",
-    tags: ["React", "TypeScript", "Tailwind CSS", "Zustand", "motion/react"],
-    category: "Frontend",
-    githubUrl: "https://github.com",
-    liveUrl: "https://github.com",
-    features: [
-      "Sistema Drag-and-Drop nativo y fluido sin librerías externas pesadas.",
-      "Optimización del renderizado que soporta más de 500 tareas simultáneas.",
-      "Manejo de estado hiper-rápido respaldado por Zustand.",
-      "Búsqueda instantánea y filtros avanzados por etiquetas."
-    ],
-    apiMockEndpoint: "/api/tasksphere/stats",
-    apiMockResponse: {
-      status: "online",
-      activeBoards: 12,
-      savedChanges: 489,
-      memoryUtilization: "14.2 MB",
-      latestEvent: "Auto-save successfully broadcasted"
-    }
-  },
-  {
-    id: "devarena",
-    title: "DevArena API Suite",
-    description: "API robusta para una plataforma comunitaria de desarrolladores que incluye autenticación JWT y testeo interactivo.",
-    longDescription: "Un backend completo diseñado bajo arquitectura limpia y principios REST. Cuenta con validaciones avanzadas de payloads de entrada, un sistema modular de logs de errores, tasas de limitación (Rate Limiting) para evitar ataques de fuerza bruta, y un generador dinámico de tokens JWT.",
-    tags: ["Node.js", "Express", "PostgreSQL", "JWT", "Docker"],
-    category: "Backend",
-    githubUrl: "https://github.com",
-    features: [
-      "Autenticación stateless respaldada por Tokens firmados y cookies seguras.",
-      "Consultas SQL super optimizadas con pools de conexiones persistentes.",
-      "Manejo centralizado de excepciones con respuestas formateadas y descriptivas.",
-      "Límite de peticiones de seguridad para mitigar ataques DDoS básicos."
-    ],
-    apiMockEndpoint: "/api/devarena/endpoints",
-    apiMockResponse: {
-      activeEndpoints: [
-        "POST /api/v1/auth/login",
-        "GET /api/v1/posts?page=1&limit=10",
-        "PUT /api/v1/users/profile"
-      ],
-      averageResponseTime: "42ms",
-      databaseStatus: "connected",
-      uptime: "99.98%"
-    }
-  },
-  {
-    id: "cloudtrack",
-    title: "CloudTrack Logger",
-    description: "Dashboard inteligente de métricas de despliegues y monitoreo de microservicios cloud.",
-    longDescription: "Una herramienta Full Stack en el navegador para simular, seguir y visualizar el rendimiento de infraestructura cloud básica. El panel recopila latencias de endpoints mockeados y emite diagnósticos interactivos útiles para administradores de red jóvenes.",
-    tags: ["React", "FastAPI", "MongoDB", "Recharts", "Docker"],
+    id: "softpack-launcher",
+    title: "Softpack Launcher",
+    description: "Instalador de software para Windows con Winget y modo offline.",
+    longDescription: "Aplicación de escritorio (Electron + React + TypeScript) para instalar y aprovisionar software en Windows.\nIntegra un catálogo categorizado con búsqueda y permite instalar por Winget o desde instaladores locales.\nIncluye consola integrada con logs en tiempo real, tema light/dark e IPC seguro mediante preload + contextBridge.",
+    tags: ["Electron", "React", "TypeScript", "Vite", "Tailwind CSS", "Winget", "Node.js"],
     category: "Fullstack",
-    githubUrl: "https://github.com",
-    liveUrl: "https://github.com",
+    githubUrl: "https://github.com/Furiade54/InstallTools",
+    liveUrl: "https://github.com/Furiade54/InstallTools/releases",
     features: [
-      "Visualización en tiempo real mediante gráficos interactivos de Recharts.",
-      "Servicio ligero en Python FastAPI con tipado ultra-estricto de Pydantic.",
-      "Pipeline de Docker multi-etapa optimizando de un tamaño original de 1GB a solo 85MB.",
-      "Panel de alertas inmediatas ante picos de uso de CPU o memoria ficticios."
+      "Catálogo de programas categorizado con buscador.",
+      "Instalación por Winget (Windows Package Manager).",
+      "Instalación offline con instaladores locales (.exe/.msi).",
+      "Consola integrada con seguimiento en tiempo real.",
+      "Tema Light/Dark con preferencia persistente.",
+      "Logs en producción (técnico + acciones del usuario)."
+    ]
+  },
+  {
+    id: "securepass-vault",
+    title: "SecurePass Vault",
+    description: "Gestor de contraseñas en navegador con cifrado AES-256-GCM y bóveda con auto-bloqueo.",
+    longDescription: "Aplicación web (React + TypeScript + Vite) para gestionar contraseñas con cifrado AES-256-GCM, derivación de claves por PBKDF2 y bóveda con auto-bloqueo por inactividad.\nIncluye desbloqueo por gestos (hash SHA-256), generador de contraseñas con entropía criptográfica y exportación/importación de backups encriptados.\nDiseñada para ser rápida (render virtualizado) y preparada para PWA.",
+    tags: ["React", "TypeScript", "Vite", "PWA", "Crypto", "AES-256-GCM", "PBKDF2"],
+    category: "Frontend",
+    githubUrl: "https://github.com/Furiade54/SecurePass",
+    liveUrl: "https://secure-pass-6vey.vercel.app",
+    features: [
+      "Cifrado AES-256-GCM con derivación PBKDF2.",
+      "Auto-bloqueo por inactividad y limpieza de memoria al bloquear.",
+      "Desbloqueo por gestos con hash SHA-256.",
+      "Generador de contraseñas seguras con verificación de fortaleza.",
+      "Exportación/importación de backups encriptados.",
+      "Búsqueda y categorización para gestión rápida."
     ],
-    apiMockEndpoint: "/api/cloudtrack/diagnostics",
+    apiMockEndpoint: "/api/securepass/vault/status",
     apiMockResponse: {
-      cpuUsage: "34.5%",
-      ramUsage: "2.1 GB / 4.0 GB",
-      containers: [
-        { name: "web-server", status: "running", uptime: "14d" },
-        { name: "postgres-db", status: "running", uptime: "28d" }
-      ],
-      latestAlert: "None"
+      vault: "securepass",
+      status: "locked",
+      crypto: {
+        algorithm: "AES-256-GCM",
+        kdf: "PBKDF2"
+      }
     }
   }
 ];
