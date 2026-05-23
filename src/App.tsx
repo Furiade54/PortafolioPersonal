@@ -327,6 +327,14 @@ export default function App() {
           `[HDR] X-Platform: win32`
         ];
       }
+      if (project.id === 'securepass-vault') {
+        return [
+          `[REQ] ${method} ${endpoint}`,
+          `[HDR] Content-Type: application/json`,
+          `[HDR] X-Vault: SecurePass`,
+          `[HDR] X-Storage: localStorage`
+        ];
+      }
 
       return [
         `[REQ] ${method} ${endpoint}`,
@@ -340,6 +348,11 @@ export default function App() {
         if (simulationRunIdRef.current !== runId) return;
         setSimulationOutputLogs(prev => [...prev, ...lines]);
       }, delayMs);
+    };
+
+    const appendNow = (lines: string[]) => {
+      if (simulationRunIdRef.current !== runId) return;
+      setSimulationOutputLogs(prev => [...prev, ...lines]);
     };
 
     if (project.id === 'softpack-launcher') {
@@ -371,6 +384,153 @@ export default function App() {
           }
         );
       }, 1750);
+      return;
+    }
+
+    if (project.id === 'securepass-vault') {
+      appendLogs(450, [
+        `[OK]  Validación de entrada: OK`,
+        `[CRYPTO] Preparando derivación de clave (PBKDF2)...`
+      ]);
+
+      window.setTimeout(() => {
+        void (async () => {
+          if (simulationRunIdRef.current !== runId) return;
+
+          const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (const b of bytes) binary += String.fromCharCode(b);
+            return btoa(binary);
+          };
+
+          const bytesToBase64 = (bytes: Uint8Array) => {
+            let binary = '';
+            for (const b of bytes) binary += String.fromCharCode(b);
+            return btoa(binary);
+          };
+
+          const storageKey = 'securepass_vault_mock_v1';
+          const entryId = `entry_${Date.now()}`;
+          const site = 'github.com';
+          const username = 'andres.sanchez';
+          const passwordPlain = 'S3cureP@ssw0rd!';
+          const createdAt = new Date().toISOString();
+
+          try {
+            if (!window.crypto?.subtle) {
+              appendNow([
+                `[WARN] WebCrypto no disponible; usando codificación base64 como fallback`,
+                `[STORE] Guardando en localStorage: ${storageKey}`
+              ]);
+
+              const fallbackPayload = {
+                version: 1,
+                entryId,
+                createdAt,
+                meta: { site, username },
+                crypto: { algorithm: 'BASE64_FALLBACK' },
+                data: btoa(passwordPlain)
+              };
+
+              localStorage.setItem(storageKey, JSON.stringify(fallbackPayload));
+              appendNow([`[OK]  Entrada almacenada (mock)`]);
+              setSimulationLoading(false);
+              setSimulationResponse({
+                ok: true,
+                stored: true,
+                storage: 'localStorage',
+                storageKey,
+                entryId,
+                meta: { site, username },
+                crypto: fallbackPayload.crypto
+              });
+              return;
+            }
+
+            const encoder = new TextEncoder();
+            const salt = window.crypto.getRandomValues(new Uint8Array(16));
+            const iv = window.crypto.getRandomValues(new Uint8Array(12));
+            const iterations = 100000;
+
+            appendNow([
+              `[CRYPTO] Salt generado: ${bytesToBase64(salt).slice(0, 12)}...`,
+              `[CRYPTO] IV generado: ${bytesToBase64(iv).slice(0, 12)}...`
+            ]);
+
+            const keyMaterial = await window.crypto.subtle.importKey(
+              'raw',
+              encoder.encode('securepass-demo-master'),
+              'PBKDF2',
+              false,
+              ['deriveKey']
+            );
+
+            const aesKey = await window.crypto.subtle.deriveKey(
+              { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
+              keyMaterial,
+              { name: 'AES-GCM', length: 256 },
+              false,
+              ['encrypt', 'decrypt']
+            );
+
+            appendNow([`[OK]  Clave derivada: PBKDF2 (${iterations} iteraciones)`]);
+
+            const cipherBuffer = await window.crypto.subtle.encrypt(
+              { name: 'AES-GCM', iv },
+              aesKey,
+              encoder.encode(passwordPlain)
+            );
+
+            const payload = {
+              version: 1,
+              entryId,
+              createdAt,
+              meta: { site, username },
+              kdf: {
+                name: 'PBKDF2',
+                hash: 'SHA-256',
+                iterations,
+                salt: bytesToBase64(salt)
+              },
+              cipher: {
+                name: 'AES-GCM',
+                iv: bytesToBase64(iv),
+                tagLength: 128
+              },
+              data: arrayBufferToBase64(cipherBuffer)
+            };
+
+            appendNow([
+              `[OK]  Contraseña encriptada (AES-256-GCM)`,
+              `[STORE] Guardando en localStorage: ${storageKey}`
+            ]);
+
+            localStorage.setItem(storageKey, JSON.stringify(payload));
+
+            appendNow([`[OK]  Entrada almacenada (mock)`]);
+            setSimulationLoading(false);
+            setSimulationResponse({
+              ok: true,
+              stored: true,
+              storage: 'localStorage',
+              storageKey,
+              entryId,
+              meta: { site, username },
+              crypto: {
+                algorithm: 'AES-256-GCM',
+                kdf: 'PBKDF2',
+                iterations
+              }
+            });
+          } catch {
+            appendNow([`[ERR] No se pudo cifrar/almacenar la entrada`]);
+            setSimulationLoading(false);
+            setSimulationResponse({ ok: false, error: 'securepass_mock_failed' });
+          }
+        })();
+      }, 1200);
+
       return;
     }
 

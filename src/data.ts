@@ -102,10 +102,11 @@ export const projects: Project[] = [
       "Exportación/importación de backups encriptados.",
       "Búsqueda y categorización para gestión rápida."
     ],
-    apiMockEndpoint: "/api/securepass/vault/status",
+    apiMockMethod: "POST",
+    apiMockEndpoint: "/api/securepass/vault/entries",
     apiMockResponse: {
       vault: "securepass",
-      status: "locked",
+      action: "store_encrypted_entry",
       crypto: {
         algorithm: "AES-256-GCM",
         kdf: "PBKDF2"
