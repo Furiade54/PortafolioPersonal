@@ -72,7 +72,18 @@ export const projects: Project[] = [
       "Consola integrada con seguimiento en tiempo real.",
       "Tema Light/Dark con preferencia persistente.",
       "Logs en producción (técnico + acciones del usuario)."
-    ]
+    ],
+    apiMockMethod: "POST",
+    apiMockEndpoint: "/api/softpack/winget/install",
+    apiMockResponse: {
+      ok: true,
+      tool: "winget",
+      action: "install",
+      packageId: "Google.Chrome",
+      flags: ["--silent", "--accept-source-agreements", "--accept-package-agreements"],
+      exitCode: 0,
+      installed: true
+    }
   },
   {
     id: "securepass-vault",

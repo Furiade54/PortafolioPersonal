@@ -87,6 +87,7 @@ export default function App() {
   const [simulationResponse, setSimulationResponse] = useState<Record<string, unknown> | null>(null);
   const [simulationOutputLogs, setSimulationOutputLogs] = useState<string[]>([]);
   const [simulationLoading, setSimulationLoading] = useState(false);
+  const simulationRunIdRef = useRef(0);
 
   // Recruiter guestbook/contact state
   const [messages, setMessages] = useState<Message[]>([]);
@@ -308,16 +309,73 @@ export default function App() {
   const triggerApiSimulation = (project: Project) => {
     if (activeSimulatingProject === project.id && simulationLoading) return;
 
+    const runId = Date.now();
+    simulationRunIdRef.current = runId;
+
+    const method = project.apiMockMethod ?? 'GET';
+    const endpoint = project.apiMockEndpoint ?? '/api/mock';
+
     setActiveSimulatingProject(project.id);
     setSimulationLoading(true);
     setSimulationResponse(null);
-    setSimulationOutputLogs([
-      `[REQ] GET ${project.apiMockEndpoint}`,
-      `[HDR] Accept-Language: es-ES`,
-      `[HDR] Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
-    ]);
+    setSimulationOutputLogs(() => {
+      if (project.id === 'softpack-launcher') {
+        return [
+          `[REQ] ${method} ${endpoint}`,
+          `[HDR] Content-Type: application/json`,
+          `[HDR] X-Client: SoftpackLauncher`,
+          `[HDR] X-Platform: win32`
+        ];
+      }
 
-    setTimeout(() => {
+      return [
+        `[REQ] ${method} ${endpoint}`,
+        `[HDR] Accept-Language: es-ES`,
+        `[HDR] Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+      ];
+    });
+
+    const appendLogs = (delayMs: number, lines: string[]) => {
+      window.setTimeout(() => {
+        if (simulationRunIdRef.current !== runId) return;
+        setSimulationOutputLogs(prev => [...prev, ...lines]);
+      }, delayMs);
+    };
+
+    if (project.id === 'softpack-launcher') {
+      appendLogs(450, [
+        `[OK]  IPC seguro: preload + contextBridge OK`,
+        `[OK]  Validación de catálogo: OK`
+      ]);
+      appendLogs(900, [
+        `[CMD] winget install --id ${String((project.apiMockResponse as { packageId?: string } | undefined)?.packageId || 'Google.Chrome')} --silent --accept-source-agreements --accept-package-agreements`,
+        `[INFO] Resolviendo manifiesto y dependencias...`
+      ]);
+      appendLogs(1350, [
+        `[OK]  Descarga completada`,
+        `[OK]  Instalación en progreso...`
+      ]);
+      window.setTimeout(() => {
+        if (simulationRunIdRef.current !== runId) return;
+        setSimulationOutputLogs(prev => [
+          ...prev,
+          `[OK]  Instalación completada (exit 0)`
+        ]);
+        setSimulationLoading(false);
+        setSimulationResponse(
+          project.apiMockResponse || {
+            ok: true,
+            tool: "winget",
+            action: "install",
+            installed: true
+          }
+        );
+      }, 1750);
+      return;
+    }
+
+    window.setTimeout(() => {
+      if (simulationRunIdRef.current !== runId) return;
       setSimulationOutputLogs(prev => [
         ...prev,
         `[OK]  Middleware de seguridad: OK (200)`,
@@ -1011,8 +1069,8 @@ export default function App() {
                         
                         <div className="p-3 bg-slate-950/85 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs font-mono">
                           <div className="flex items-center space-x-2 text-slate-300 overflow-hidden">
-                            <span className="text-emerald-400 font-bold">GET</span>
-                            <span className="truncate text-slate-400">{proj.apiMockEndpoint}</span>
+                            <span className="text-emerald-400 font-bold">{proj.apiMockMethod || 'GET'}</span>
+                            <span className="truncate text-slate-400">{proj.apiMockEndpoint || '/api/mock'}</span>
                           </div>
                           
                           <button
@@ -1021,7 +1079,11 @@ export default function App() {
                             className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-[10px] font-bold flex items-center space-x-1 font-mono active:scale-95 transition-all outline-none"
                           >
                             <Play className="w-3 h-3 fill-current text-slate-950" />
-                            <span>{isActiveSimulating && simulationLoading ? 'Enviando...' : 'Enviar GET'}</span>
+                            <span>
+                              {isActiveSimulating && simulationLoading
+                                ? 'Enviando...'
+                                : `Enviar ${proj.apiMockMethod || 'GET'}`}
+                            </span>
                           </button>
                         </div>
                       </div>
@@ -1055,7 +1117,7 @@ export default function App() {
                               )}
                             </>
                           ) : (
-                            <p className="text-slate-500 italic text-center pt-8">Presiona 'Enviar GET' para simular e inspeccionar flujo JSON de respuesta.</p>
+                            <p className="text-slate-500 italic text-center pt-8">Presiona 'Enviar' para simular e inspeccionar el flujo JSON de respuesta.</p>
                           )}
                         </div>
 
